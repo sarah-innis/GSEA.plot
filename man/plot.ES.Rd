@@ -12,5 +12,5 @@
 \item{plotname}{filename to save the plot as}
 }
 \description{
-Create a pdf of GSEA function plot outputs 4 graphs per page and saves to your working directory
+Create a pdf of a list of ggplot objects that is obtained from the GSEA analysis. Outputs 4 graphs per page and saves to your working directory
 }

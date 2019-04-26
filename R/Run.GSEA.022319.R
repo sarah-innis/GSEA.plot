@@ -1,32 +1,35 @@
 #' Execute GSEA Analysis
 #'
-#' Analyzes relation of differential expression to gene sets
-#' @param wd_new The directory the summary files and pdf of plots will output to
-#' @param datasets.folder The path to the folder containing expression gct file and phenotype cls file
-#' @param genesets.folder The path to the folder containing the geneset
-#' @param code.folder The path to the folder containing the plotting function and GSEA source code
+#' Analyzes genetic expression data and determines whether defined gene sets show statistically significant differences with respect to two phenotypes.
 #' @param input.ds.name Name of the gct expression file
 #' @param input.cls.name Name of the cls phenotype file
 #' @param gene.set.input Name of the geneset file
 #' @param doc.string Name of the output folder for analysis and for naming output files
 #' @param nperm number of permutations
-#' @param nom.p.val.threshold
-#' @param fdr.q.val.threshold
+#' @param nom.p.val.threshold significance threshold for nominal p-values
+#' @param fdr.q.val.threshold significance threshold for fdr q-values
 #' @param bar_percent proportional height of tick mark to window
-#' @param gap_percent proportional height between minimum ES and tick mark to the window
+#' @param gap_percent proportional height between minimum enrichment score and top of tick mark to the window
 #' @param under_percent proportional height of white space under tick marks to the window size
 #' @param upper_percent proportional height of white space over enrichment graph to the window size
 #' @param color_line color of enrichment score line in plot pdf
 #' @param color_tick color to tick marks on plot
+#' @param abs.val Default is false. Determines whether genes are ranked according to signal to noise or absolute value of signal to noise (when abs.val=T)
 #'
-#' @return list pp which includes lists: plots, gene.set.reference.matrix, gene.set.leading, report1, report2, ES
+#' @details GSEA analysis is computed using the Broad Institute's R source code. Genes are ranked according to signal to noise ratio (difference in means/sum of standard deviations for the two phenotypes)
+#' @return pp a list pp which includes : plots, gene.set.reference.matrix, gene.set.leading, report1, report2, ES
+#' @return plots a list of ggplot objects, this can act as an input to the function plot.ES() to output a pdf
+#' @return gene.set.reference.matrix a list of each gene set within a gene set database and the gene symbols corresponding to each set
+#' @return gene.set.leading a similar structure to gene.set.reference.matrix but only contains the gene symbols within each gene set that are part of the leading edge set
+#' @return report1 summary of GSEA analysis data for the first phenotype
+#' @return report2 summary of GSEA analysis data for the second phenotype
+#' @return ES this object contains the enrichment scores and enrichment tags used to create the plots described earlier. The user can use this information to customize plots as they wish
 #' @export
 #' @references Subramanian, Tamayo, et al. (2005), PNAS 102, 15545-15550, http://www.broad.mit.edu/gsea/
 
-GSEAplots= function(wd_new=wd_new,  datasets.folder="",
-                    genesets.folder="",code.folder="",input.ds.name="",input.cls.name="", gene.set.input="",
+GSEAplots= function(input.ds.name="",input.cls.name="", gene.set.input="",
                     doc.string="", nperm=1000,nom.p.val.threshold=-1,fdr.q.val.threshold = 0.25,bar_percent=0.1,
-                    gap_percent=0.1, under_percent=0.1,upper_percent=0.1,color_line="black", color_tick="black"){
+                    gap_percent=0.1, under_percent=0.1,upper_percent=0.1,color_line="black", color_tick="black",abs.val=F){
   # GSEA 1.0 -- Gene Set Enrichment Analysis / Broad Institute
 
  # Inputs:
@@ -38,25 +41,22 @@ GSEAplots= function(wd_new=wd_new,  datasets.folder="",
     #   nperm: number of permutations, default is 1000
     #   nom.p.val.threshold Significance threshold for nominal p-vals for gene sets (default: -1, no thres)
     #   fdr.q.val.threshold   = 0.25,   Significance threshold for FDR q-vals for gene sets (default: 0.25)
-  #
 
-  #change non interactive run to true if you ever want to get their pdfs out
 
-  library(dplyr)
-  library(ggplot2)
-  library(ggthemes)
-  library(gridExtra)
-  GSEA.program.location <- paste0(code.folder,"/GSEA.1.0.sei3.R")
-  source(GSEA.program.location, verbose=F, max.deparse.length=9999)
 
+  wd_new=getwd()
+  if (file.exists(paste0(wd_new,"/", doc.string))==FALSE){
+  dir.create(doc.string)
+  }
   results_new=GSEA(                                                                    # Input/Output Files :-------------------------------------------
-                                                                          input.ds=paste0(datasets.folder,input.ds.name), # Input gene expression Affy dataset file in RES or GCT format
-                                                                          input.cls=paste0(datasets.folder,input.cls.name),
+                                                                          input.ds=input.ds.name, # Input gene expression Affy dataset file in RES or GCT format
+                                                                          input.cls=input.cls.name,
                                                                           #input.ds=paste(wd_new,datasets.folder,input.ds.name, sep="",collapse=NULL), # Input gene expression Affy dataset file in RES or GCT format
                                                                            #input.cls=paste(wd_new,datasets.folder,input.cls.name,sep="",collapse=NULL),
-                                                                           gs.db =   paste(genesets.folder,gene.set.input,sep="",collapse=NULL),         # Gene set database in GMT format
-                                                                           output.directory      = paste(wd_new,"/", doc.string,"/", sep="",collapse=NULL),
-                                                                           output.directory2      =paste(wd_new,"/",sep="",collapse=NULL),
+                                                                           # gs.db =   paste(genesets.folder,gene.set.input,sep="",collapse=NULL),         # Gene set database in GMT format
+                                                                          gs.db =   gene.set.input,
+                                                                          output.directory      = paste0(wd_new,"/", doc.string,"/"),
+                                                                           output.directory2      =paste0(wd_new,"/"),
                                                                                 # Directory where to store output and results (default: "")
                                                                            #  Program parameters :-------------------------------------------------------------------------------------------------------------------------
                                                                            doc.string            = doc.string,   # Documentation string used as a prefix to name result files (default: "GSEA.analysis")
@@ -79,7 +79,8 @@ GSEAplots= function(wd_new=wd_new,  datasets.folder="",
                                                                            replace               = F,               # For experts only, Resampling mode (replacement or not replacement) (default: F)
                                                                            save.intermediate.results = F,           # For experts only, save intermediate results (e.g. matrix of random perm. scores) (default: F)
                                                                            OLD.GSEA              = F,               # Use original (old) version of GSEA (default: F)
-                                                                           use.fast.enrichment.routine = T          # Use faster routine to compute enrichment for random permutations (default: T)
+                                                                           use.fast.enrichment.routine = T,          # Use faster routine to compute enrichment for random permutations (default: T)
+                                                                          abs.val=abs.val                               #rank by absolute value of signal to noise ratio
   )
 
   #-----------------------------------------------------------------------------------------------------------------------------------------------
@@ -90,6 +91,8 @@ GSEAplots= function(wd_new=wd_new,  datasets.folder="",
   ES.report.files <- results_new$out7[-which(sapply(results_new$out7,is.null))]
   gene.set.numbers <- results_new$out4[-which(sapply(results_new$out5,is.null))]
   gene.set.reference.matrix <- results_new$gene.set.reference.matrix
+  expr.dat <- results_new$sei1
+  pheno.dat <- results_new$sei2
   gene.set.leading <- rep(list("null"),length(gene.set.numbers))
   ES <- rep(list("null"),length(gene.set.numbers))
   enrichind <- rep(list("null"),length(gene.set.numbers))
@@ -157,7 +160,7 @@ GSEAplots= function(wd_new=wd_new,  datasets.folder="",
   gene.set.leading[] <- lapply(gene.set.leading, as.character)
 
 
-  return(list(plots=plots,gene.set.reference.matrix=gene.set.reference.matrix,gene.set.leading=gene.set.leading,report1=report1,report2=report2,ES=ES))
+  return(list(plots=plots,gene.set.reference.matrix=gene.set.reference.matrix,gene.set.leading=gene.set.leading,report1=report1,report2=report2,ES=ES,expr.dat=expr.dat, pheno.dat=pheno.dat))
 }
 
 
