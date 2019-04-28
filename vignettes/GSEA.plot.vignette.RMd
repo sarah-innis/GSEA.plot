@@ -13,9 +13,6 @@ This vignette gives an introduction into the GSEA.plot package. This package bui
 
 This package requires three data files. It will output two summary results files and a pdf of all of the enrichment plots to the current working directory. Within the current working directory a folder will be created with the name assigned to doc.string in the GSEAplots function call. The individual gene set results will be saved into this folder.
 
-```{r setup, include=FALSE}
-opts_chunk$set(tidy.opts=list(width.cutoff=50),tidy=TRUE)
-```
 
 # Load the Package
 
