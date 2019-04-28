@@ -14,16 +14,13 @@ This vignette gives an introduction into the GSEA.plot package. This package bui
 This package requires three data files. It will output two summary results files and a pdf of all of the enrichment plots to the current working directory. Within the current working directory a folder will be created with the name assigned to doc.string in the GSEAplots function call. The individual gene set results will be saved into this folder.
 
 ```{r setup, include=FALSE}
-library(knitr)
-library(kableExtra)
-knitr::opts_chunk$set(collapse = TRUE, comment = "#>")
 opts_chunk$set(tidy.opts=list(width.cutoff=50),tidy=TRUE)
 ```
 
 # Load the Package
 
 ```{r echo=TRUE, message=FALSE,warning=FALSE, error=FALSE}
-devtools::install_github("sarah-innis/GSEA.plot")
+#devtools::install_github("sarah-innis/GSEA.plot")
 library(devtools)
 library(GSEA.plot)
 ```
@@ -36,7 +33,7 @@ Calling the key included within the package can show you which databases are cur
 
 ```{r}
 data(key)
-kable(head(key), format="latex", booktabs=TRUE) %>% kable_styling(latex_options = "scale_down")
+head(key)
 
 ```
 
@@ -49,7 +46,7 @@ GO_mf_filename
 
 ```{r}
 descriptive_names=database_key("all")
-kable(head(descriptive_names), format="latex", booktabs=TRUE) 
+head(descriptive_names)
 ```
 
 Once you have found the filename for the database you are interested in, you can load it into your workspace and work with it.
@@ -65,7 +62,7 @@ To check if a geneset database includes the set you are interested in, you can v
 
 ```{r}
 sets=get_genesets(hallmark.gs)
-kable(head(sets), format="latex", booktabs=TRUE) 
+head(sets) 
 ```
 
 
@@ -139,15 +136,15 @@ use_data(key,overwrite=TRUE)
 ```{r}
 data(aagmex_expr)
 expr.input=aagmex_expr
-kable(expr.input[1:4,1:6], format="latex", booktabs=TRUE) 
+expr.input[1:4,1:6]
 
 ```
 
 ```{r}
 data(aagmex_pheno)
 pheno.input=aagmex_pheno
-kable(pheno.input[[1]],format="latex",booktabs=TRUE)
-kable(head(pheno.input[[2]]),format="latex",booktabs=TRUE)
+pheno.input[[1]]
+head(pheno.input[[2]])
 ```
 
 ```{r}
@@ -222,8 +219,7 @@ head(pp$gene.set.leading[[1]])
 One report is generated for each phenotype. The table shows all of the information available in the report file except for the source for the geneset which is ommitted for easier viewing. 
 
 ```{r}
-kable(pp$report1[1,-3], format="latex", booktabs=TRUE) %>% 
-  kable_styling(latex_options="scale_down")
+pp$report1[1,-3]
 ```
 
 
@@ -233,7 +229,7 @@ kable(pp$report1[1,-3], format="latex", booktabs=TRUE) %>%
 The enrichment score ouput allows you to access the data used to generate the plots so that you might create your own.For example if you wanted to quickly compare the enrichment scores between two gene sets. 
 ```{r }
 data1=pp$ES[[2]]
-kable(head(data1),format="latex",booktabs=TRUE)
+head(data1)
 ```
 
 
