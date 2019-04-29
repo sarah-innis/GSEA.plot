@@ -5,13 +5,15 @@
     "dirty" : false,
     "encoding" : "UTF-8",
     "folds" : "",
-    "hash" : "2333762406",
+    "hash" : "1458229203",
     "id" : "4A53842B",
-    "lastKnownWriteTime" : 1552061799,
-    "last_content_update" : 1552061799,
+    "lastKnownWriteTime" : 1556567920,
+    "last_content_update" : 1556567920517,
     "path" : "C:/Users/Student/GSEA.plot/vignettes/GSEA.plot.vignette.RMd",
     "project_path" : "vignettes/GSEA.plot.vignette.RMd",
     "properties" : {
+        "cursorPosition" : "125,1",
+        "scrollLine" : "119"
     },
     "relative_order" : 1,
     "source_on_save" : false,

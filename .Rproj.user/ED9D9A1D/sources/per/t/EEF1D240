@@ -1,0 +1,22 @@
+{
+    "collab_server" : "",
+    "contents" : "",
+    "created" : 1556564575593.000,
+    "dirty" : false,
+    "encoding" : "UTF-8",
+    "folds" : "",
+    "hash" : "3448020206",
+    "id" : "EEF1D240",
+    "lastKnownWriteTime" : 1556563597,
+    "last_content_update" : 1556563597,
+    "path" : "C:/Users/Student/GSEA.plot/R/gene_input.R",
+    "project_path" : "R/gene_input.R",
+    "properties" : {
+        "cursorPosition" : "8,0",
+        "scrollLine" : "0"
+    },
+    "relative_order" : 2,
+    "source_on_save" : false,
+    "source_window" : "",
+    "type" : "r_source"
+}
