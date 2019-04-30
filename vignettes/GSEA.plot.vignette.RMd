@@ -8,7 +8,7 @@ output:
 #GSEA.plot
 ####Civelek Lab University of Virginia
 #####Sarah Innis, Mete Civelek, Warren Anderson
-#####April 19, 2019
+#####April 29, 2019
 This vignette gives an introduction into the GSEA.plot package. This package builds off of the Gene Set Enrichment computational analysis published by the Broad Institute specifically their R code for outputting the results. This package uses the enrichment data to create plots that are easier to understand and modify. In addition to improved plotting functionality, this package also introduces the capability to create your own geneset databases. The package includes all geneset databases published by the Broad Institute as well as 6 different transcription factor databases and two databases containing ligands and receptor pairs.
 
 This package requires three data files. It will output two summary results files and a pdf of all of the enrichment plots to the current working directory. Within the current working directory a folder will be created with the name assigned to doc.string in the GSEAplots function call. The individual gene set results will be saved into this folder.
@@ -17,7 +17,7 @@ This package requires three data files. It will output two summary results files
 # Load the Package
 
 ```{r echo=TRUE, message=FALSE,warning=FALSE, error=FALSE}
-devtools::install_github("sarah-innis/GSEA.plot")
+#devtools::install_github("sarah-innis/GSEA.plot")
 library(devtools)
 library(GSEA.plot)
 ```
@@ -48,7 +48,6 @@ head(descriptive_names)
 Once you have found the filename for the database you are interested in, you can load it into your workspace and work with it.
 
 ```{r}
-#data(filename)
 data(hallmark.gs)
 data(C1.gs)
 ```
@@ -66,22 +65,20 @@ head(sets)
 To create your own database you need to create a list. The names of the list must be the names of the genesets. The items in each element of the list are the gene symbols included. For example the names of a potential list would be the transcription factors and the elements would be the genes affected by that specific transcription factor. The new_geneset function then converts this list into a format that can go into the GSEAplots function. Setting gene.set.input=new_geneset will then allow for GSEA analysis to be run on the combined set. 
 
 ```{r}
-names=c("TF1","TF2","TF3")
-TF1_genes=c("AAMP","ABCA1","CDK9")
-TF2_genes=c("DTD1","CBR4")
-TF3_genes=c("MIR762","MIR3175")
-
-TF_db=list(TF1_genes,TF2_genes,TF3_genes)
-names(TF_db)=names
-
-new_geneset=create_geneset_db(TF_db)
+names_of_sets=sets[1:3]
+hall_1=get_genesymbols(hallmark.gs)[1]
+hall_2=get_genesymbols(hallmark.gs)[2]
+hall_3=get_genesymbols(hallmark.gs)[3]
+hall_13.db=rbind(hall_1,hall_2,hall_3)
+names(hall_13.db)=names_of_sets
+new_geneset=create_geneset_db(hall_13.db)
 ```
 
 
 # Setting up Data for the Package
 3 dataframes are necessary to run the Gene Set Enrichment Analysis.You should have a geneset database, an expression file, and a phenotype file. You can write your own or use one of the included files. To load data included in the package use the data() function and then call the R objects. If you have not saved data to the package, set the object equal to the parameter.
 
-### Expression Data
+### Loading Data
 ```{r}
 data(aagmex_expr)
 expr.input=aagmex_expr
@@ -125,8 +122,9 @@ Plotting Paramaters:
 ```{r results="hide",warning=FALSE}
  pp= GSEAplots(input.ds.name=expr.input,
                input.cls.name=pheno.input, gene.set.input=gene.set.input,
-               doc.string="Aagmex_hall", nperm=1000,nom.p.val.threshold=-1,fdr.q.val.threshold = 0.25,abs.val=F,
-               bar_percent=0.1, gap_percent=0.1, under_percent=0.1,upper_percent=0.1,color_line="black",
+               doc.string="Aagmex_hall", nperm=1000,nom.p.val.threshold=-1,
+               fdr.q.val.threshold = 0.25,abs.val=F,bar_percent=0.1, gap_percent=0.1,
+               under_percent=0.1,upper_percent=0.1,color_line="black",
                color_tick="black")
 
 ```
@@ -187,7 +185,8 @@ Enrichment scores are plotted for each position within the gene set. A positive 
 
 ```{r fig.width=4,fig.height=4}
 enrich_ind=which(data1$EStag==1)
-d=data.frame(x=enrich_ind, y=matrix(min(data1$RES)-0.12,length(enrich_ind),1), vx=matrix(0,length(enrich_ind),1), vy=matrix(0.04,length(enrich_ind),1))
+d=data.frame(x=enrich_ind, y=matrix(min(data1$RES)-0.12,length(enrich_ind),1),
+             vx=matrix(0,length(enrich_ind),1), vy=matrix(0.04,length(enrich_ind),1))
 p <- ggplot(data1, aes(index,RES))+geom_line(col="black")
 p <- p+geom_segment(data=d, mapping=aes(x=x, y=y, xend=x+vx, yend=y+vy),col="black")
 p <- p+theme_classic()
@@ -196,22 +195,22 @@ print(p)
 ```
 
 ## Running GSEA on a New Database
-This package introduces the ability to create your own databases or combine two. When using a combined dataabse, you have the ability to compare enrichment scores between genesets from different databases. 
+This package introduces the ability to create your own database.  
 
 ```{r results="hide"}
-# gene.set.input=new_geneset
+gene.set.input=new_geneset
 
-# combination_results= GSEAplots(input.ds.name=expr.input,
-#                input.cls.name=pheno.input, gene.set.input=gene.set.input,
-#                doc.string="Aagmex_combinedset", nperm=1000,nom.p.val.threshold=-1,fdr.q.val.threshold = 0.25,
-#                bar_percent=0.1, gap_percent=0.1, under_percent=0.1,upper_percent=0.1,color_line="black",
-#                color_tick="black",abs.val=F)
+hall_13_results= GSEAplots(input.ds.name=expr.input,
+               input.cls.name=pheno.input, gene.set.input=gene.set.input,
+               doc.string="Aagmex_hall13", nperm=1000,nom.p.val.threshold=-1,
+               fdr.q.val.threshold = 0.25, bar_percent=0.1, gap_percent=0.1,
+               under_percent=0.1,upper_percent=0.1,color_line="black",
+               color_tick="black",abs.val=F)
 
 ```
 
 ```{r fig.width=4,fig.height=4}
-# combination_results$plots[[2]]
-# combination_results$plots[[53]]
+hall_13_results$plots[[2]]
 ```
 
 

@@ -115,3 +115,32 @@ create_geneset_db=function(database=""){
   return(formatted_db)
 }
 
+#' Get Gene Symbols
+#'
+#' This function takes one input, the file name for the database and and returns the gene symbols within that set.
+#'
+#' @param database_file Name of the rda file for the geneset database within the package
+#' @return The gene symbols within that gene set
+#' @export
+
+get_genesymbols=function(database_file=""){
+  temp=database_file
+  max.Ng <- length(temp)
+  names <- vector(length = max.Ng, mode = "character")
+  db <- list(length=max.Ng,mode="character")
+  gs.count <- 1
+
+
+  for (i in 1:max.Ng) {
+    gene.set.size <- length(unlist(strsplit(temp[[i]], "\t"))) - 2
+    gs.line <- noquote(unlist(strsplit(temp[[i]], "\t")))
+    gene.set.name <- gs.line[1]
+    names[gs.count] <- gene.set.name
+    gene.symbols <- gs.line[-1]
+    gene.symbols <- gene.symbols[-1]
+    db[[gs.count]] <- gene.symbols
+    gs.count <- gs.count + 1
+  }
+  names(db)=names
+  return(db)
+}

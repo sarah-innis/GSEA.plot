@@ -16,8 +16,23 @@ database_key=function(database_name=""){
   else {
     index=which(key[,2]==database_name)
     database_of_interest=key[index,1]
+    database_of_interest=as.character(database_of_interest)
     return(database_of_interest)
   }
+}
+
+#' New Function
+#'
+#' This function takes one input, the common name of the geneset database you are interested in and returns the name of the rda file that can be used in the GSEA analysis function.
+#' If the input is "all" then all database common names are returned.
+#'
+#' @param x Either enter "all" or a string containing the name of one of the existing geneset databases
+#' @return Either the names of all existing gene set databases or the file name for the specified database
+#' @export
+
+
+newfunction=function(x=0){
+  x=x+2
 }
 
 #' View Gene Sets within Database
@@ -55,7 +70,7 @@ return(names)
 
 combine_databases=function(databases="",geneset_names=""){
   library(rlist)
-  if (geneset_names[[1]][[1]]=="all"){
+  if (geneset_names[[1]]=="all"){
     new_db=databases[[1]]
   }
   else {
@@ -68,7 +83,7 @@ combine_databases=function(databases="",geneset_names=""){
     }
   }
   for (i in 2:length(databases)){
-    if (geneset_names[[i]][[1]]=="all"){
+    if (geneset_names[[i]]=="all"){
       new_db=list.append(new_db,databases[[i]])
     }
     else{
