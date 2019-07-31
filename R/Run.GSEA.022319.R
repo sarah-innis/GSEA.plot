@@ -15,6 +15,7 @@
 #' @param color_line color of enrichment score line in plot pdf
 #' @param color_tick color to tick marks on plot
 #' @param abs.val Default is false. Determines whether genes are ranked according to signal to noise or absolute value of signal to noise (when abs.val=T)
+#' @param gs.size.threshold.max Default is 1000. Maximum matches between geneset and gene labels
 #'
 #' @details GSEA analysis is computed using the Broad Institute's R source code. Genes are ranked according to signal to noise ratio (difference in means/sum of standard deviations for the two phenotypes)
 #' @return pp a list pp which includes : plots, gene.set.reference.matrix, gene.set.leading, report1, report2, ES
@@ -29,7 +30,7 @@
 
 GSEAplots= function(input.ds.name="",input.cls.name="", gene.set.input="",
                     doc.string="", nperm=1000,nom.p.val.threshold=-1,fdr.q.val.threshold = 0.25,bar_percent=0.1,
-                    gap_percent=0.1, under_percent=0.1,upper_percent=0.1,color_line="black", color_tick="black",abs.val=F){
+                    gap_percent=0.1, under_percent=0.1,upper_percent=0.1,color_line="black", color_tick="black",abs.val=F,gs.size.threshold.max=1000){
   # GSEA 1.0 -- Gene Set Enrichment Analysis / Broad Institute
 
  # Inputs:
@@ -70,7 +71,7 @@ GSEAplots= function(input.ds.name="",input.cls.name="", gene.set.input="",
                                                                            topgs                 = 20,              # Besides those passing test, number of top scoring gene sets used for detailed reports (default: 10)
                                                                            adjust.FDR.q.val      = F,               # Adjust the FDR q-vals (default: F)
                                                                            gs.size.threshold.min = 15,              # Minimum size (in genes) for database gene sets to be considered (default: 25)
-                                                                           gs.size.threshold.max = 500,             # Maximum size (in genes) for database gene sets to be considered (default: 500)
+                                                                           gs.size.threshold.max = gs.size.threshold.max,             # Maximum size (in genes) for database gene sets to be considered (default: 500)
                                                                            reverse.sign          = F,               # Reverse direction of gene list (pos. enrichment becomes negative, etc.) (default: F)
                                                                            preproc.type          = 0,               # Preproc.normalization: 0=none, 1=col(z-score)., 2=col(rank) and row(z-score)., 3=col(rank). (def: 0)
                                                                            random.seed           = 3338,            # Random number generator seed. (default: 123456)
