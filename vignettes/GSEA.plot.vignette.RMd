@@ -89,8 +89,8 @@ expr.input[1:4,1:6]
 ```{r}
 data(aagmex_pheno)
 pheno.input=aagmex_pheno
-pheno.input[[1]]
-head(pheno.input[[2]])
+pheno.input$phen
+head(pheno.input$class.v)
 ```
 
 ```{r}
@@ -231,6 +231,46 @@ enrichment_TF= GSEAplots(input.ds.name=expr.input,
 
 ```{r fig.width=4,fig.height=4}
  enrichment_TF$plots[1]
+
+```
+
+
+## Create a Phenotype Input File
+The pheno.input parameter for GSEA.plot requires a list with a phen element and a class.v element.
+```{r}
+data(aagmex_pheno)
+aagmex_pheno$phen
+head(aagmex_pheno$class.v)
+```
+
+The create_phenoinput file takes a character column with labels for the phenotype of each sample and makes it into a working pheno.input for the GSEA.plot function. 
+
+```{r}
+data(gtex_ann)
+gtex_ann
+pheno.input=create_phenoinput(gtex_ann)
+pheno.input$phen
+head(pheno.input$class.v)
+
+data(gtex_expr)
+expr.input=gtex_expr
+gene.set.input=hallmark.gs
+```
+
+```{r results="hide",warning=FALSE}
+
+gtex_example= GSEAplots(input.ds.name=expr.input,
+               input.cls.name=pheno.input, gene.set.input=gene.set.input,
+               doc.string="Gtex_hall", nperm=1000,nom.p.val.threshold=-1,
+               fdr.q.val.threshold = 0.25,abs.val=F,bar_percent=0.1, gap_percent=0.1,
+               under_percent=0.1,upper_percent=0.1,color_line="black",
+               color_tick="black")
+```
+
+
+```{r fig.width=4,fig.height=4}
+gtex_example$plots[[2]]
+```
 
 ```
 
