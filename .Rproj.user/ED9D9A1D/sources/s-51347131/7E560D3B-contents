@@ -54,7 +54,7 @@ gene.set.input[[length(hallmark.gs)+1]] = new_geneset
 # run GSEA
 pp = GSEAplots(input.ds.name = expr.input, input.cls.name = pheno.input,
                gene.set.input = gene.set.input, doc.string = "gtex6p",
-               nperm = 1000, nom.p.val.threshold = -1, fdr.q.val.threshold = 0.25,
+               nperm = 1000, gs.size.threshold.max=1000, fdr.q.val.threshold = 0.25,
                bar_percent = 0.1, gap_percent = 0.1, under_percent = 0.1,
                upper_percent = 0.1, color_line = "black", color_tick = "black",
                abs.val = F, gs.size.threshold.max =1000)

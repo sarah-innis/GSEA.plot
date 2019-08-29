@@ -46,45 +46,6 @@ for (i in 1:max.Ng) {
 return(names)
 }
 
-#' Create a Geneset Database
-#'
-#' This function takes a list of geneset databases. It returns a list that can be saved as a new database.
-#' @param databases a list of geneset database files that contain the gene sets
-#' @param geneset_names a list of lists. The first list corresponds to the first db_file and so on and says what genesets to include in new database. If equal to "all" all genesets in that database will be included
-#' @return a dataframe that can be saved to the package or used directly by the GSEAplots function
-#' @export
-
-combine_databases=function(databases="",geneset_names=""){
-  library(rlist)
-  if (geneset_names[[1]]=="all"){
-    new_db=databases[[1]]
-  }
-  else {
-    db1_names=get_genesets(databases[[1]])
-    index=which(db1_names==geneset_names[[1]][[1]])
-    new_db=databases[[1]][[index]]
-    for (j in 2:length(geneset_names[[1]])){
-      index=which(db1_names==geneset_names[[1]][[j]])
-      new_db=list.append(new_db,databases[[1]][[index]])
-    }
-  }
-  for (i in 2:length(databases)){
-    if (geneset_names[[i]]=="all"){
-      new_db=list.append(new_db,databases[[i]])
-    }
-    else{
-      db_names=get_genesets(databases[[i]])
-      index=which(db_names==geneset_names[[i]][[1]])
-      new_db=list.append(new_db, databases[[i]][[index]])
-      for (j in 2:length(geneset_names[[i]])){
-        index=which(db_names==geneset_names[[i]][[j]])
-        new_db=list.append(new_db,databases[[i]][[index]])
-    }
-    }
-  }
-  return(new_db)
-}
-
 #' Format New Geneset Daatbase
 #'
 #' When given a list with keys as a set name and the data corresponding to a key, the gene symbols corresponding to that key. This function will reformat the data to be saved into the package and to be a working input to the GSEA.plots function.
@@ -93,25 +54,15 @@ combine_databases=function(databases="",geneset_names=""){
 #' @export
 create_geneset_db=function(database=""){
   formatted_db=list()
-  null_elements=c()
   names=names(database)
-  for (i in 1:length(database)){
-    if (is.null(database[[i]])){
-      null_elements=rbind(null_elements,i)
-    }
-  }
-  if (length(null_elements)>0){
-  database=database[-null_elements]
-  names=names[-null_elements]
-  }
 
   for (i in 1: length(database)){
     names(database[[i]])=NULL
     q=paste(database[[i]],collapse="\t")
-    formatted_db[[i]]=paste(names[[i]],'NA',q,sep="\t")
+    formatted_db[[i]]=paste(names[[i]],q,sep="\t")
   }
 
-  w=unlist(formatted_db)
+  formatted_db=unlist(formatted_db)
   return(formatted_db)
 }
 
@@ -132,7 +83,6 @@ get_genesymbols=function(database_file=""){
 
 
   for (i in 1:max.Ng) {
-    gene.set.size <- length(unlist(strsplit(temp[[i]], "\t"))) - 2
     gs.line <- noquote(unlist(strsplit(temp[[i]], "\t")))
     gene.set.name <- gs.line[1]
     names[gs.count] <- gene.set.name
@@ -144,3 +94,22 @@ get_genesymbols=function(database_file=""){
   names(db)=names
   return(db)
 }
+
+#' Add to Existing Gene set Database
+#'
+#' This function takes two inputs: the formatted existing database and the gene sets to add.It will return the combined database ready to be used in the GSEA function.
+#'
+#' @param database the formatted existing database
+#' @param addition the gene sets to be added
+#' @return a formatted database with new sets included
+#' @export
+
+add_to_database=function(database="",addition=""){
+  original_length=length(database)
+  for (ii in 1: nrow(addition)){
+    temp=paste(addition[ii,], collapse="\t")
+    database[[original_length+ii]]=temp
+  }
+  return(database)
+}
+

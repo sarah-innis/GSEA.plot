@@ -6,10 +6,9 @@
 \usage{
 GSEAplots(input.ds.name = "", input.cls.name = "",
   gene.set.input = "", doc.string = "", nperm = 1000,
-  nom.p.val.threshold = -1, fdr.q.val.threshold = 0.25,
-  bar_percent = 0.1, gap_percent = 0.1, under_percent = 0.1,
-  upper_percent = 0.1, color_line = "black", color_tick = "black",
-  abs.val = F)
+  fdr.q.val.threshold = 0.25, bar_percent = 0.1, gap_percent = 0.1,
+  under_percent = 0.1, upper_percent = 0.1, color_line = "black",
+  color_tick = "black", abs.val = F, gs.size.threshold.max = 1000)
 }
 \arguments{
 \item{input.ds.name}{Name of the gct expression file}
@@ -21,8 +20,6 @@ GSEAplots(input.ds.name = "", input.cls.name = "",
 \item{doc.string}{Name of the output folder for analysis and for naming output files}
 
 \item{nperm}{number of permutations}
-
-\item{nom.p.val.threshold}{significance threshold for nominal p-values}
 
 \item{fdr.q.val.threshold}{significance threshold for fdr q-values}
 
@@ -39,6 +36,8 @@ GSEAplots(input.ds.name = "", input.cls.name = "",
 \item{color_tick}{color to tick marks on plot}
 
 \item{abs.val}{Default is false. Determines whether genes are ranked according to signal to noise or absolute value of signal to noise (when abs.val=T)}
+
+\item{gs.size.threshold.max}{Default is 1000. Maximum matches between geneset and gene labels}
 }
 \value{
 pp a list pp which includes : plots, gene.set.reference.matrix, gene.set.leading, report1, report2, ES

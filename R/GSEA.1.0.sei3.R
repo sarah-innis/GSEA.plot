@@ -2059,9 +2059,8 @@ if (output.directory != "")  {
             main.string <- paste("Gene Set ", i, ":", gs.names[i])
             plot(ind, Obs.RES[i,], main = main.string, sub = sub.string, xlab = "Gene List Index", ylab = "Running Enrichment Score (RES)", xlim=c(1, N), ylim=c(min.plot, max.plot), type = "l", lwd = 2, cex = 1, col = col)
             ###Sarah
-            sarah.string <- paste(gs.names[i], ".EStags.", phen.tag, ".", loc, ".txt", sep="", collapse="")
             out4[[i]] <- paste("Gene Set",i,":",gs.names[i])
-            out5[[i]] <- sarah.string
+            out5[[i]] <- paste(gs.names[i], ".EStags.", phen.tag, ".", loc, ".txt", sep="", collapse="")
             out6[[i]] <- paste(gs.names[i],".ESdata.",phen.tag,".",loc,".txt",sep="",collapse="")
             for (j in seq(1, N, 20)) {
                 lines(c(j, j), c(zero.corr.line, Obs.correl.vector.norm[j]), lwd = 1, cex = 1, col = colors()[12]) # shading of correlation plot

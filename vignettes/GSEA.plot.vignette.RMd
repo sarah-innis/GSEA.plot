@@ -8,7 +8,7 @@ output:
 #GSEA.plot
 ####Civelek Lab University of Virginia
 #####Sarah Innis, Mete Civelek, Warren Anderson
-#####April 29, 2019
+#####August 29, 2019
 This vignette gives an introduction into the GSEA.plot package. This package builds off of the Gene Set Enrichment computational analysis published by the Broad Institute specifically their R code for outputting the results. This package uses the enrichment data to create plots that are easier to understand and modify. In addition to improved plotting functionality, this package also introduces the capability to create your own geneset databases. The package includes all geneset databases published by the Broad Institute as well as 6 different transcription factor databases and two databases containing ligands and receptor pairs.
 
 This package requires three data files. It will output two summary results files and a pdf of all of the enrichment plots to the current working directory. Within the current working directory a folder will be created with the name assigned to doc.string in the GSEAplots function call. The individual gene set results will be saved into this folder.
@@ -61,19 +61,6 @@ head(sets)
 ```
 
 
-## Generate a New Database
-To create your own database you need to create a list. The names of the list must be the names of the genesets. The items in each element of the list are the gene symbols included. For example the names of a potential list would be the transcription factors and the elements would be the genes affected by that specific transcription factor. The new_geneset function then converts this list into a format that can go into the GSEAplots function. Setting gene.set.input=new_geneset will then allow for GSEA analysis to be run on the combined set. 
-
-```{r}
-names_of_sets=sets[1:3]
-hall_1=get_genesymbols(hallmark.gs)[1]
-hall_2=get_genesymbols(hallmark.gs)[2]
-hall_3=get_genesymbols(hallmark.gs)[3]
-hall_13.db=rbind(hall_1,hall_2,hall_3)
-names(hall_13.db)=names_of_sets
-new_geneset=create_geneset_db(hall_13.db)
-```
-
 
 # Setting up Data for the Package
 3 dataframes are necessary to run the Gene Set Enrichment Analysis.You should have a geneset database, an expression file, and a phenotype file. You can write your own or use one of the included files. To load data included in the package use the data() function and then call the R objects. If you have not saved data to the package, set the object equal to the parameter.
@@ -93,6 +80,7 @@ pheno.input$phen
 head(pheno.input$class.v)
 ```
 
+
 ```{r}
 data(hallmark.gs)
 gene.set.input=hallmark.gs
@@ -106,8 +94,8 @@ Other Analysis Paramaters:
 
 * nperm determines the number of permutations. Permutations are used to analyze the significance of the association between gene expression and phenotype and determine whether the associations are more significant then random ones.
 * fdr.q.val.threshold sets a limit on false discovery rate. Set at a default of 0.25, we would expect that 3 out of 4 times the result is likely valid. The fdr value is computed as a ratio of the enrichment score to the enrichment scores for all permutations of the gene set over the ratio of the enrichment score to the enrichment scores of the actual gene set. 
-* nom.p.val.threshold sets a limit on which gene set enrichment scores are considered significant. 
 * abs.val is default false. When set to true genes are ranked according to the absolute value of their signal to noise ratio.
+* gs.size.threshold.max This is the maximum number of gene symbols in expression data that match a given gene set. No more than this number will be analyzed.
 
 Plotting Paramaters:
 
@@ -118,12 +106,13 @@ Plotting Paramaters:
 * color_line: color of the line in the enrichment score plot
 * color_tick: color of the tick marks that indicate a gene symbol within a gene set that is differentially expressed in the data
 
+The parameters gs.size.threshold.min and gs.size.threshold.max determines how many gene symbols from the gene set and the expression data can match. Their default values are respectively 25 and 1000. Gs.size.threshold.max can be changed within the GSEAplots() function. 
 
 ```{r results="hide",warning=FALSE}
  pp= GSEAplots(input.ds.name=expr.input,
                input.cls.name=pheno.input, gene.set.input=gene.set.input,
-               doc.string="Aagmex_hall", nperm=1000,nom.p.val.threshold=-1,
-               fdr.q.val.threshold = 0.25,abs.val=F,bar_percent=0.1, gap_percent=0.1,
+               doc.string="Aagmex_hall", nperm=1000,
+               fdr.q.val.threshold = 0.25,abs.val=F,gs.size.threshold.max=1000, bar_percent=0.1, gap_percent=0.1,
                under_percent=0.1,upper_percent=0.1,color_line="black",
                color_tick="black")
 
@@ -195,14 +184,25 @@ print(p)
 ```
 
 ## Running GSEA on a New Database
-This package introduces the ability to create your own database.  
+This package introduces the ability to create your own database. To create your own database you need to create a list. The names of the list must be the names of the genesets. The items in each element of the list are the description and gene symbols. For example the names of a potential list would be the transcription factors and the elements would be the genes affected by that specific transcription factor. The create_geneset_db() function then converts this list into a format that can go into the GSEAplots function.  
+
+```{r}
+sets=get_genesets(hallmark.gs)
+symbols=get_genesymbols(hallmark.gs)
+entry1=c("source_1",symbols$HALLMARK_TNFA_SIGNALING_VIA_NFKB)
+entry2=c("source_2",symbols$HALLMARK_HYPOXIA)
+entry3=c("source_3",symbols$HALLMARK_CHOLESTEROL_HOMEOSTASIS)
+hall_13.db=list(entry1,entry2,entry3)
+names(hall_13.db)=c(sets[1],sets[2],sets[3])
+gene.set.input=create_geneset_db(hall_13.db)
+```
+
 
 ```{r results="hide"}
-gene.set.input=new_geneset
 
 hall_13_results= GSEAplots(input.ds.name=expr.input,
                input.cls.name=pheno.input, gene.set.input=gene.set.input,
-               doc.string="Aagmex_hall13", nperm=1000,nom.p.val.threshold=-1,
+               doc.string="Aagmex_hall13", nperm=1000,gs.size.threshold.max = 1000,
                fdr.q.val.threshold = 0.25, bar_percent=0.1, gap_percent=0.1,
                under_percent=0.1,upper_percent=0.1,color_line="black",
                color_tick="black",abs.val=F)
@@ -224,7 +224,7 @@ gene.set.input=ENCODE.db
 
 enrichment_TF= GSEAplots(input.ds.name=expr.input,
                input.cls.name=pheno.input, gene.set.input=gene.set.input,
-               doc.string="Aagmex_TF", nperm=1000,nom.p.val.threshold=-1,fdr.q.val.threshold = 0.25,
+               doc.string="Aagmex_TF", nperm=1000,gs.size.threshold.max=1000,fdr.q.val.threshold = 0.25,
                bar_percent=0.1, gap_percent=0.1, under_percent=0.1,upper_percent=0.1,color_line="black",
                color_tick="black",abs.val=F)
 ```
@@ -232,6 +232,21 @@ enrichment_TF= GSEAplots(input.ds.name=expr.input,
 ```{r fig.width=4,fig.height=4}
  enrichment_TF$plots[1]
 
+```
+
+## Add to an Existing Gene Set Database
+This new function allows you to add gene sets into an exsiting database. The database input needs to be already in the tab separated format that is used in the GSEA function. The gene sets to add have a separate line for each gene set with the gene set name, source, and gene symbols.
+
+```{r}
+data(transf)
+data(transm)
+tx = t(c("HALLMARK_KLF14","http://www.broadinstitute.org/gsea/msigdb/cards/HALLMARK_KLF14",transf[,1], transm[,1]))
+```
+
+The add_to_database function adds this set to the hallmark sets and formats it for use in the function. An example of it being used is in the section below. 
+```{r}
+gene.set.input=add_to_database(database=hallmark.gs,addition=tx)
+head(gene.set.input)
 ```
 
 
@@ -247,21 +262,20 @@ The create_phenoinput file takes a character column with labels for the phenotyp
 
 ```{r}
 data(gtex_ann)
-gtex_ann
+head(gtex_ann)
 pheno.input=create_phenoinput(gtex_ann)
 pheno.input$phen
 head(pheno.input$class.v)
 
 data(gtex_expr)
 expr.input=gtex_expr
-gene.set.input=hallmark.gs
 ```
 
 ```{r results="hide",warning=FALSE}
 
 gtex_example= GSEAplots(input.ds.name=expr.input,
                input.cls.name=pheno.input, gene.set.input=gene.set.input,
-               doc.string="Gtex_hall", nperm=1000,nom.p.val.threshold=-1,
+               doc.string="Gtex_hall", nperm=1000,gs.size.threshold.max = 1000,
                fdr.q.val.threshold = 0.25,abs.val=F,bar_percent=0.1, gap_percent=0.1,
                under_percent=0.1,upper_percent=0.1,color_line="black",
                color_tick="black")
@@ -272,7 +286,7 @@ gtex_example= GSEAplots(input.ds.name=expr.input,
 gtex_example$plots[[2]]
 ```
 
-```
+
 
 #References
 * Subramanian, Tamayo, et al. (2005), PNAS 102, 15545-15550, http://www.broad.mit.edu/gsea/
