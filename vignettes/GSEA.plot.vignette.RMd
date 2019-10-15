@@ -128,8 +128,7 @@ This is the enrichment plot given from the first geneset.
 
 ```{r fig.width=4,fig.height=4}
 pp$plots[[1]]
-
-```
+``` 
 
 Use the function plot.ES to save a pdf containing the enrichment plots for every set in the gene set database.
 ```{r results='hide'}
@@ -231,6 +230,41 @@ enrichment_TF= GSEAplots(input.ds.name=expr.input,
 
 ```{r fig.width=4,fig.height=4}
  enrichment_TF$plots[1]
+
+```
+
+## Introduction of Kadoki Ligand and Receptor Database
+This package offers two new databases, the Kadoki Ligand and Receptor Databases. For both databases, gs.size.threshold.max is increased to 3000 to enable the analysis. 
+
+```{r}
+data(Kadoki_ligands.db)
+gene.set.input=Kadoki_ligands.db
+
+ligand_results=GSEAplots(input.ds.name=expr.input,
+               input.cls.name=pheno.input, gene.set.input=gene.set.input,
+               doc.string="Aagmex_ligands", nperm=1000,gs.size.threshold.max=3000,fdr.q.val.threshold = 0.25,
+               bar_percent=0.1, gap_percent=0.1, under_percent=0.1,upper_percent=0.1,color_line="black",
+               color_tick="black",abs.val=F)
+```
+
+```{r fig.width=4,fig.height=4}
+ ligand_results$plots[1]
+
+```
+
+```{r}
+data(Kadoki_receptors.db)
+gene.set.input=Kadoki_receptors.db
+
+receptor_results=GSEAplots(input.ds.name=expr.input,
+               input.cls.name=pheno.input, gene.set.input=gene.set.input,
+               doc.string="Aagmex_receptors", nperm=1000,gs.size.threshold.max=3000,fdr.q.val.threshold = 0.25,
+               bar_percent=0.1, gap_percent=0.1, under_percent=0.1,upper_percent=0.1,color_line="black",
+               color_tick="black",abs.val=F)
+```
+
+```{r fig.width=4,fig.height=4}
+ receptor_results$plots[1]
 
 ```
 

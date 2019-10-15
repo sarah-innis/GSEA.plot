@@ -85,14 +85,19 @@ GSEAplots= function(input.ds.name="",input.cls.name="", gene.set.input="",
 
   #-----------------------------------------------------------------------------------------------------------------------------------------------
 
-
+  if (length(which(sapply(results_new$out5,is.null))) == 0){
+    ES.tags.files <- results_new$out5
+    ES.data.files <- results_new$out6
+    ES.report.files <- results_new$out7
+    gene.set.numbers <- results_new$out4
+  } else{
+    #this step removes the gene sets which did not generate ES.tags, ES.data, or ES.report files
   ES.tags.files <- results_new$out5[-which(sapply(results_new$out5,is.null))]
   ES.data.files <- results_new$out6[-which(sapply(results_new$out6,is.null))]
   ES.report.files <- results_new$out7[-which(sapply(results_new$out7,is.null))]
   gene.set.numbers <- results_new$out4[-which(sapply(results_new$out5,is.null))]
+  }
   gene.set.reference.matrix <- results_new$gene.set.reference.matrix
-  expr.dat <- results_new$sei1
-  pheno.dat <- results_new$sei2
   gene.set.leading <- rep(list("null"),length(gene.set.numbers))
   ES <- rep(list("null"),length(gene.set.numbers))
   enrichind <- rep(list("null"),length(gene.set.numbers))
@@ -101,7 +106,7 @@ GSEAplots= function(input.ds.name="",input.cls.name="", gene.set.input="",
 
 
   if (regexpr(pattern="HALLMARK_", gene.set.numbers[1]) == -1) {
-    #   nothing
+  #nothing
   } else {
     for (i in 1: length(gene.set.numbers)){
       g <- strsplit(gene.set.numbers[[i]],split="HALLMARK_")
@@ -120,8 +125,8 @@ GSEAplots= function(input.ds.name="",input.cls.name="", gene.set.input="",
     dat1 = read.table(dat1_name,header=T,sep="\t")
     dat2 = read.table(dat2_name,header=T,sep="\t")
     report=read.table(report_name,sep="\t")
-    datcomb <- cbind(dat1,dat2)
-    ES[[i]]=datcomb[1:3]
+    datcomb <-  merge(dat1,dat2)
+    ES[[i]]=datcomb
     enrich_ind=which(dat2$EStag==1)
     height=max(dat1$RES)-min(dat1$RES)
     bar_height=bar_percent*height
@@ -160,7 +165,7 @@ GSEAplots= function(input.ds.name="",input.cls.name="", gene.set.input="",
   gene.set.leading[] <- lapply(gene.set.leading, as.character)
 
 
-  return(list(plots=plots,gene.set.reference.matrix=gene.set.reference.matrix,gene.set.leading=gene.set.leading,report1=report1,report2=report2,ES=ES,expr.dat=expr.dat, pheno.dat=pheno.dat))
+  return(list(plots=plots,gene.set.reference.matrix=gene.set.reference.matrix,gene.set.leading=gene.set.leading,report1=report1,report2=report2,ES=ES))
 }
 
 

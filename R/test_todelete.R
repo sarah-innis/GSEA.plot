@@ -46,12 +46,44 @@
 
 
 #fixing get_gene_symbols
-# sets=get_genesets(hallmark.gs)
-# symbols=get_genesymbols(hallmark.gs)
-# entry1=c("description",symbols$HALLMARK_TNFA_SIGNALING_VIA_NFKB)
+ # sets=get_genesets(hallmark.gs)
+ # symbols=get_genesymbols(hallmark.gs)
+ # entry1=c("description",symbols$HALLMARK_TNFA_SIGNALING_VIA_NFKB)
 # entry2=c("description",symbols$HALLMARK_HYPOXIA)
 # entry3=c("description",symbols$HALLMARK_CHOLESTEROL_HOMEOSTASIS)
 # entry=list(entry1,entry2,entry3)
 # names(entry)=c(sets[1],sets[2],sets[3])
+# entry2=create_geneset_db(entry)
 # gene.set.input=create_geneset_db(entry)
-
+#
+#
+# library(GSEA.plot)
+# data(transf)
+# data(transm)
+# tx = c("http://www.broadinstitute.org/gsea/msigdb/cards/HALLMARK_KLF14",transf[,1], transm[,1])
+# ty=list(tx)
+# names(ty)="HALLMARK_KLF14"
+# gene.set.input=create_geneset_db(ty)
+#
+# data(gtex_ann)
+# pheno.input=create_phenoinput(gtex_ann)
+#
+# data(gtex_expr)
+# expr.input=gtex_expr
+#
+# #test with one input  that is from hallmark
+# sets=get_genesets(hallmark.gs)
+# symbols=get_genesymbols(hallmark.gs)
+# entry1=c("description",symbols$HALLMARK_TNFA_SIGNALING_VIA_NFKB)
+# entry1=list(entry1)
+# names(entry1)=sets[1]
+# gene.set.input=create_geneset_db(entry1)
+#
+# gtex_example= GSEAplots(input.ds.name=expr.input,
+#                         input.cls.name=pheno.input, gene.set.input=gene.set.input,
+#                         doc.string="Gtex_hall", nperm=1000,gs.size.threshold.max = 1000,
+#                         fdr.q.val.threshold = 0.25,abs.val=F,bar_percent=0.1, gap_percent=0.1,
+#                         under_percent=0.1,upper_percent=0.1,color_line="black",
+#                         color_tick="black")
+#
+# plot.ES(list.of.plots=gtex_example$plots,plotname="GSEA_plots")

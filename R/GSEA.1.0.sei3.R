@@ -922,7 +922,6 @@ abs.val=F) {
 # its use, misuse, or functionality.
 
   print(" *** Running GSEA Analysis...")
-  ii=1
 
 
 if (OLD.GSEA == T) {
@@ -1003,15 +1002,12 @@ write(paste("replace =", replace, sep=" "), file=filename, append=T)
 
   if (is.data.frame(input.ds)) {
      dataset <- input.ds
-     sei1 <- NULL
   } else {
      if (regexpr(pattern=".gct", input.ds) == -1) {
          dataset <- GSEA.Res2Frame(filename = input.ds)
-         sei1 <- NULL
      } else {
 #         dataset <- GSEA.Gct2Frame(filename = input.ds)
          dataset <- GSEA.Gct2Frame2(filename = input.ds)
-         sei1 <- dataset
      }
   }
   gene.labels <- row.names(dataset)
@@ -1041,10 +1037,8 @@ write(paste("replace =", replace, sep=" "), file=filename, append=T)
 
   if(is.list(input.cls)) {
      CLS <- input.cls
-     sei2 <- NULL
   } else {
      CLS <- GSEA.ReadClsFile(file=input.cls)
-     sei2 <- CLS
   }
   class.labels <- CLS$class.v
   class.phen <- CLS$phen
@@ -1085,7 +1079,6 @@ write(paste("replace =", replace, sep=" "), file=filename, append=T)
 
       max.size.G <- max(temp.size.G)
       gs <- matrix(rep("null", max.Ng*max.size.G), nrow=max.Ng, ncol= max.size.G)
-      # gene.set.reference.matrix <- matrix(rep("null", max.Ng*max.size.G), nrow=max.Ng, ncol= max.size.G)
       temp.names <- vector(length = max.Ng, mode = "character")
       temp.desc <- vector(length = max.Ng, mode = "character")
       gs.count <- 1
@@ -1102,9 +1095,7 @@ write(paste("replace =", replace, sep=" "), file=filename, append=T)
           for (j in 1:gene.set.size) {
               gene.set.tags[j] <- gs.line[j + 2]
           }
-          # gene.set.reference.matrix[i,1:gene.set.size] <- gene.set.tags
           gene.set.reference.matrix[[i]] <- gene.set.tags
-          #label error
           existing.set <- is.element(gene.set.tags, gene.labels)
           set.size <- length(existing.set[existing.set == T])
           if ((set.size < gs.size.threshold.min) || (set.size > gs.size.threshold.max)) next
@@ -1411,7 +1402,6 @@ if (OLD.GSEA == F) {
       }
    }
 }
-
 # Find effective size
 
  erf <- function (x)
@@ -1943,7 +1933,11 @@ if (output.directory != "")  {
          topgs <- floor(Ng/2)
       }
 
+
+
       for (i in 1:Ng) {
+        # if the gene set nom p-val, fwer p-val, or FDR passes the threshold then you can create a plot
+        #else does nothing
           if ((p.vals[i, 1] <= nom.p.val.threshold) ||
               (p.vals[i, 2] <= fwer.p.val.threshold) ||
               (FDR.mean.sorted[i] <= fdr.q.val.threshold) ||
@@ -1975,6 +1969,7 @@ if (output.directory != "")  {
             for (k in set.k) {
                if (Obs.indicator[i, k] == 1) {
                   gene.number[kk] <- kk
+                  #gets the names of the gene labels that have tick marks
                   gene.names[kk] <- obs.gene.labels[k]
                   gene.symbols[kk] <- substr(obs.gene.symbols[k], 1, 15)
                   gene.descs[kk] <- substr(obs.gene.descs[k], 1, 40)
@@ -1989,15 +1984,16 @@ if (output.directory != "")  {
                   }
                   kk <- kk + 1
                }
+
             }
 
+
+        #out7 report for each gene set
        gene.report <- data.frame(cbind(gene.number, gene.names, gene.symbols, gene.descs, gene.list.loc, gene.s2n, gene.RES, core.enrichment))
        names(gene.report) <- c("#", "GENE", "SYMBOL", "DESC", "LIST LOC", "S2N", "RES", "CORE_ENRICHMENT")
-       #get report file names
        out7[[i]] <- paste(gs.names[i],".report.",phen.tag,".",loc,".txt",sep="",collapse="")
 
 
-#       print(gene.report)
 
 if (output.directory != "")  {
 
@@ -2040,14 +2036,15 @@ if (output.directory != "")  {
             zero.corr.line <- (- min.corr/(max.corr - min.corr))*1.25*delta + min.plot
             col <- ifelse(Obs.ES[i] > 0, 2, 4)
 
-
-            out1 = as.data.frame( cbind(ind, Obs.RES[i,]) )
-            names(out1) = c("index","RES")
+            #out1 ESdata
+            #out1 = as.data.frame( cbind(ind, Obs.RES[i,]) )
+            out1 = as.data.frame( cbind(ind, obs.gene.labels, Obs.RES[i,]) )
+            names(out1) = c("index","gene symbol","RES")
             file1 <- paste(output.directory, doc.string, ".", gs.names[i], ".ESdata.", phen.tag, ".", loc, ".txt", sep="", collapse="")
              write.table(out1, file = file1, quote=F, row.names=F, sep = "\t")
 
-            out2 = as.data.frame( Obs.indicator[i,] )
-            names(out2) = c("EStag")
+            out2 = as.data.frame(cbind(Obs.indicator[i,],obs.gene.labels ))
+            names(out2) = c("EStag", "gene symbol")
             file2 <- paste(output.directory, doc.string, ".", gs.names[i], ".EStags.", phen.tag, ".", loc, ".txt", sep="", collapse="")
 
             write.table(out2, file = file2, quote=F, row.names=F, sep = "\t")
@@ -2059,7 +2056,8 @@ if (output.directory != "")  {
             main.string <- paste("Gene Set ", i, ":", gs.names[i])
             plot(ind, Obs.RES[i,], main = main.string, sub = sub.string, xlab = "Gene List Index", ylab = "Running Enrichment Score (RES)", xlim=c(1, N), ylim=c(min.plot, max.plot), type = "l", lwd = 2, cex = 1, col = col)
             ###Sarah
-            out4[[i]] <- paste("Gene Set",i,":",gs.names[i])
+            #out4[[i]] <- paste("Gene Set",i,":",gs.names[i]) getting rid of this to simplify plot names
+            out4[[i]] <- paste(gs.names[i])
             out5[[i]] <- paste(gs.names[i], ".EStags.", phen.tag, ".", loc, ".txt", sep="", collapse="")
             out6[[i]] <- paste(gs.names[i],".ESdata.",phen.tag,".",loc,".txt",sep="",collapse="")
             for (j in seq(1, N, 20)) {
@@ -2144,7 +2142,7 @@ if (output.directory != "")  {
       } # loop over gene sets
 
 
-  return(list(report1 = report.phen1, report2 = report.phen2,out4=out4,out5=out5,out6=out6,out7=out7,gene.set.reference.matrix=gene.set.reference.matrix,sei1=sei1,sei2=sei2))
+return(list(report1 = report.phen1, report2 = report.phen2,out4=out4,out5=out5,out6=out6,out7=out7,gene.set.reference.matrix=gene.set.reference.matrix))
 
 }  # end of definition of GSEA.analysis
 
