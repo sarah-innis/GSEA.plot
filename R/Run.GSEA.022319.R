@@ -80,7 +80,7 @@ GSEAplots= function(input.ds.name="",input.cls.name="", gene.set.input="",
                                                                            save.intermediate.results = F,           # For experts only, save intermediate results (e.g. matrix of random perm. scores) (default: F)
                                                                            OLD.GSEA              = F,               # Use original (old) version of GSEA (default: F)
                                                                            use.fast.enrichment.routine = T,          # Use faster routine to compute enrichment for random permutations (default: T)
-                                                                          abs.val=abs.val                               #rank by absolute value of signal to noise ratio
+                                                                           abs.val=abs.val                               #rank by absolute value of signal to noise ratio
   )
 
   #-----------------------------------------------------------------------------------------------------------------------------------------------
@@ -125,7 +125,8 @@ GSEAplots= function(input.ds.name="",input.cls.name="", gene.set.input="",
     dat1 = read.table(dat1_name,header=T,sep="\t")
     dat2 = read.table(dat2_name,header=T,sep="\t")
     report=read.table(report_name,sep="\t")
-    datcomb <-  merge(dat1,dat2)
+    datcomb <- cbind(dat1,dat2)
+    datcomb= datcomb[,-5]
     ES[[i]]=datcomb
     enrich_ind=which(dat2$EStag==1)
     height=max(dat1$RES)-min(dat1$RES)
@@ -146,16 +147,23 @@ GSEAplots= function(input.ds.name="",input.cls.name="", gene.set.input="",
     p <- p+theme(plot.title = element_text(size = 12))
     plots[[i]] <- p
 
-    index_max <- datcomb$index[which.max(datcomb$RES)]
-    leading_index <- enrich_ind[which(enrich_ind<=index_max)]
-    max_obs_index <- length(leading_index)
+    #location of largest RES absolute value
+    leading_index <- which.max(abs(datcomb$RES))
 
-    #takes the report of all enriched genes and takes out the ones before the max
-    leading.edge.names <- report[1:max_obs_index,]$V2
-    leading.edge.RES <- report[1:max_obs_index,]$V7
+    #depending on which phenotype the gene set is more related to the leading edge set is on different sides
+    if (datcomb$RES[leading_index] > 0){
+      #takes the report of all enriched genes and selects the ones before the max
+      leading.edge.names <- report$V2[which(report$V5 < leading_index)]
+      leading.edge.RES <- report$V7[which(report$V5 < leading_index)]
+    }
+    else {
+      #takes the report of all enriched genes and selects the ones after the max
+      leading.edge.names <- report$V2[which(report$V5 > leading_index)]
+      leading.edge.RES <- report$V7[which(report$V5 > leading_index)]
+    }
+
     leading.edge.set <- data.frame(leading.edge.names,leading.edge.RES)
     gene.set.leading[[i]] <- leading.edge.names
-
 
   }
 

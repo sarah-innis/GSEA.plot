@@ -1236,11 +1236,11 @@ write(paste("replace =", replace, sep=" "), file=filename, append=T)
  }
 
   obs.s2n <- apply(obs.correl.matrix, 1, median)  # using median to assign enrichment scores
-  #orders by decreasing enrichment score
+  #orders by decreasing signal to noise
   obs.index <- order(obs.s2n, decreasing=T)
   obs.s2n   <- sort(obs.s2n, decreasing=T)
 
-  #maybe-- sorts gene labels by the decreasing enrichment score??
+  #sorts labels
   obs.gene.labels <- gene.labels[obs.index]
   obs.gene.descs <- all.gene.descs[obs.index]
   obs.gene.symbols <- all.gene.symbols[obs.index]
@@ -1330,7 +1330,6 @@ write(paste("replace =", replace, sep=" "), file=filename, append=T)
         gene.set2 <- vector(length=length(gene.set), mode = "numeric")
         gene.set2 <- match(gene.set, gene.labels)
         for (r in 1:nperm) {
-          #maybe
             reshuffled.gene.labels <- sample(1:rows)
             if (use.fast.enrichment.routine == F) {
                GSEA.results <- GSEA.EnrichmentScore(gene.list=reshuffled.gene.labels, gene.set=gene.set2, weighted.score.type=weighted.score.type, correl.vector=obs.s2n)
@@ -1687,9 +1686,9 @@ if (OLD.GSEA == F) {
        FDR.median.sorted <-  signif(FDR.median.sorted, digits=5)
        glob.p.vals.sorted <- signif(glob.p.vals.sorted, digits=5)
 
+       #database wide reports
        report <- data.frame(cbind(gs.names, size.G, all.gs.descs, Obs.ES, Obs.ES.norm, p.vals[,1], FDR.mean.sorted, p.vals[,2], tag.frac, gene.frac, signal.strength, FDR.median.sorted, glob.p.vals.sorted))
        names(report) <- c("GS", "SIZE", "SOURCE", "ES", "NES", "NOM p-val", "FDR q-val", "FWER p-val", "Tag %", "Gene %", "Signal", "FDR (median)", "glob.p.val")
-#       print(report)
        report2 <- report
        report.index2 <- order(Obs.ES.norm, decreasing=T)
        for (i in 1:Ng) {
@@ -1705,15 +1704,13 @@ if (OLD.GSEA == F) {
        report.phen1 <- report2[1:phen1.rows,]
        report.phen2 <- report3[1:phen2.rows,]
 
-       ## the things that are being printed to summary results are report.phen1 and report.phen2
 if (output.directory != "")  {
        if (phen1.rows > 0) {
-          #filename <- paste(output.directory, doc.string, ".SUMMARY.RESULTS.REPORT.", phen1,".txt", sep="", collapse="")
+         #this sends the summary results to the working directory while the other results go in a folder in the working directory
          filename <- paste(output.directory2, doc.string, ".SUMMARY.RESULTS.REPORT.", phen1,".txt", sep="", collapse="")
           write.table(report.phen1, file = filename, quote=F, row.names=F, sep = "\t")
        }
        if (phen2.rows > 0) {
-          #filename <- paste(output.directory, doc.string, ".SUMMARY.RESULTS.REPORT.", phen2,".txt", sep="", collapse="")
          filename <- paste(output.directory2, doc.string, ".SUMMARY.RESULTS.REPORT.", phen2,".txt", sep="", collapse="")
           write.table(report.phen2, file = filename, quote=F, row.names=F, sep = "\t")
        }
@@ -1974,7 +1971,6 @@ if (output.directory != "")  {
                   gene.symbols[kk] <- substr(obs.gene.symbols[k], 1, 15)
                   gene.descs[kk] <- substr(obs.gene.descs[k], 1, 40)
                   gene.list.loc[kk] <- k
-                  #this is where signal to noise comes from-- obs.s2n comes from that function
                   gene.s2n[kk] <- signif(obs.s2n[k], digits=3)
                   gene.RES[kk] <- signif(Obs.RES[i, k], digits = 3)
                   if (Obs.ES[i] >= 0) {
@@ -1992,6 +1988,7 @@ if (output.directory != "")  {
        gene.report <- data.frame(cbind(gene.number, gene.names, gene.symbols, gene.descs, gene.list.loc, gene.s2n, gene.RES, core.enrichment))
        names(gene.report) <- c("#", "GENE", "SYMBOL", "DESC", "LIST LOC", "S2N", "RES", "CORE_ENRICHMENT")
        out7[[i]] <- paste(gs.names[i],".report.",phen.tag,".",loc,".txt",sep="",collapse="")
+       names(out7) <- c("#", "GENE", "SYMBOL", "DESC", "LIST LOC", "S2N", "RES", "CORE_ENRICHMENT")
 
 
 
@@ -2055,8 +2052,6 @@ if (output.directory != "")  {
 
             main.string <- paste("Gene Set ", i, ":", gs.names[i])
             plot(ind, Obs.RES[i,], main = main.string, sub = sub.string, xlab = "Gene List Index", ylab = "Running Enrichment Score (RES)", xlim=c(1, N), ylim=c(min.plot, max.plot), type = "l", lwd = 2, cex = 1, col = col)
-            ###Sarah
-            #out4[[i]] <- paste("Gene Set",i,":",gs.names[i]) getting rid of this to simplify plot names
             out4[[i]] <- paste(gs.names[i])
             out5[[i]] <- paste(gs.names[i], ".EStags.", phen.tag, ".", loc, ".txt", sep="", collapse="")
             out6[[i]] <- paste(gs.names[i],".ESdata.",phen.tag,".",loc,".txt",sep="",collapse="")
