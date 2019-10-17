@@ -1098,6 +1098,7 @@ write(paste("replace =", replace, sep=" "), file=filename, append=T)
           gene.set.reference.matrix[[i]] <- gene.set.tags
           existing.set <- is.element(gene.set.tags, gene.labels)
           set.size <- length(existing.set[existing.set == T])
+          #removes genesets that do not fit the size requirements
           if ((set.size < gs.size.threshold.min) || (set.size > gs.size.threshold.max)) next
           temp.size.G[gs.count] <- set.size
           gs[gs.count,] <- c(gene.set.tags[existing.set], rep("null", max.size.G - temp.size.G[gs.count]))
@@ -1224,7 +1225,6 @@ write(paste("replace =", replace, sep=" "), file=filename, append=T)
    call.nperm <- n.perms[nk]
 
    print(paste("Computing ranked list for actual and permuted phenotypes.......permutations: ", n.starts[nk], "--", n.ends[nk], sep=" "))
-    #this is where the ranked stuff is coming from
    O <- GSEA.GeneRanking(A, class.labels, gene.labels, call.nperm, permutation.type = perm.type, sigma.correction = "GeneCluster", fraction=fraction, replace=replace, reverse.sign = reverse.sign,abs.val=abs.val)
    gc()
   #o comes out with order.matrix obs.order.matrix s2n.matrix obs.s2n.matrix
@@ -1581,7 +1581,6 @@ if (OLD.GSEA == F) {
       Orig.index <- Orig.index[Obs.ES.index]
       Orig.index <- order(Orig.index, decreasing=F)
       Obs.ES.norm.sorted <- Obs.ES.norm[Obs.ES.index]
-      #maybe here
       gs.names.sorted <- gs.names[Obs.ES.index]
 
       for (k in 1:Ng) {
@@ -1675,7 +1674,6 @@ if (OLD.GSEA == F) {
 # Produce results report
 
       print("Producing result tables and plots...")
-#signif rounds to specified number of significant digits
        Obs.ES <- signif(Obs.ES, digits=5)
        Obs.ES.norm <- signif(Obs.ES.norm, digits=5)
        p.vals <- signif(p.vals, digits=4)
@@ -1988,7 +1986,6 @@ if (output.directory != "")  {
        gene.report <- data.frame(cbind(gene.number, gene.names, gene.symbols, gene.descs, gene.list.loc, gene.s2n, gene.RES, core.enrichment))
        names(gene.report) <- c("#", "GENE", "SYMBOL", "DESC", "LIST LOC", "S2N", "RES", "CORE_ENRICHMENT")
        out7[[i]] <- paste(gs.names[i],".report.",phen.tag,".",loc,".txt",sep="",collapse="")
-       names(out7) <- c("#", "GENE", "SYMBOL", "DESC", "LIST LOC", "S2N", "RES", "CORE_ENRICHMENT")
 
 
 
@@ -2033,8 +2030,6 @@ if (output.directory != "")  {
             zero.corr.line <- (- min.corr/(max.corr - min.corr))*1.25*delta + min.plot
             col <- ifelse(Obs.ES[i] > 0, 2, 4)
 
-            #out1 ESdata
-            #out1 = as.data.frame( cbind(ind, Obs.RES[i,]) )
             out1 = as.data.frame( cbind(ind, obs.gene.labels, Obs.RES[i,]) )
             names(out1) = c("index","gene symbol","RES")
             file1 <- paste(output.directory, doc.string, ".", gs.names[i], ".ESdata.", phen.tag, ".", loc, ".txt", sep="", collapse="")

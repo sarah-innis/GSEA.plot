@@ -17,7 +17,7 @@ Three data files are needed in order to perform the gene set enrichment analysis
 # Load the Package
 
 ```{r echo=TRUE, message=FALSE,warning=FALSE, error=FALSE}
-#devtools::install_github("sarah-innis/GSEA.plot")
+remotes::install_github("sarah-innis/GSEA.plot")
 library(devtools)
 library(GSEA.plot)
 ```
